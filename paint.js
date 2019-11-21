@@ -1,7 +1,26 @@
 function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)//PINTA EL MAPA
 {
+    var text = document.getElementById('information')
+
     var init = document.getElementById('init').value;//.value es el valor
     var end = document.getElementById('end').value;
+    var infoWindow = new google.maps.InfoWindow;
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var pos = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          console.log(pos)
+        }, function() {
+          handleLocationError(true, infoWindow, map.getCenter());
+        });
+      } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infoWindow, map.getCenter());
+      }
+    
 
     var INIT = {
         place: 'none',
@@ -15,6 +34,37 @@ function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)/
         lng: 0
     }
 
+    function calculateTime()
+        {
+            var service = new google.maps.DistanceMatrixService;
+            service.getDistanceMatrix({
+              origins: [INIT],
+              destinations: [END],
+              travelMode: 'DRIVING',
+              unitSystem: google.maps.UnitSystem.METRIC,
+              avoidHighways: false,
+              avoidTolls: false
+            },function(response, status) {
+                if (status == 'OK') {
+                  var origins = response.originAddresses;
+                  var destinations = response.destinationAddresses;
+              
+                  for (var i = 0; i < origins.length; i++) {
+                    var results = response.rows[i].elements;
+                    for (var j = 0; j < results.length; j++) {
+                      var element = results[j];
+                      var distance = element.distance.text;
+                      var duration = element.duration.text;
+                      var from = origins[i];
+                      var to = destinations[j];
+                    }
+                  }
+                  text.style.color = "white";
+                  text.innerHTML = `Distancia: ${element.distance.text}  Duracion: ${element.duration.text}`;
+                }
+              })
+        }
+
     function createRoute(){
         directionsService.route({ 
             //Esto crea una ruta
@@ -27,13 +77,11 @@ function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)/
             if (status == 'OK') {
             //Segun la documentacion de la api DIRECTIONS en REDERINGDIRECTION(renderisar direcciones) cuando es OK esque encontro los 2 puntos
               directionsRenderer.setDirections(response);
-            }
-            else if(status == 'ZERO_RESULTS') 
-            {
-                alert('cero resultados :(')
+              calculateTime()
             }
             else {
-              window.alert('algo fallo: ' + status);
+                text.style.color = "red";
+                text.innerHTML = 'algo fallo: ' + status
             }
         });    
     }
@@ -49,8 +97,13 @@ function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)/
                     END.lng = resultsMap.center.lng();
                     console.log(INIT, END)
                     createRoute()
-                } else {
-                alert('Geocode was not successful for the following reason: ' + status);
+                } else if(status == 'ZERO_RESULTS') 
+                {
+                    text.style.color = "red";
+                    text.innerHTML = "tu destino no existe :("
+                }else {
+                    text.style.color = "red";
+                    text.innerHTML = 'algo fallo: ' + status
                 }
                 
             });
@@ -63,12 +116,19 @@ function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)/
                 INIT.lat = resultsMap.center.lat();
                 INIT.lng = resultsMap.center.lng();
                 setEnd()
-            } else {
-              alert('Geocode was not successful for the following reason: ' + status);
+            } else if(status == 'ZERO_RESULTS') 
+            {
+                text.style.color = "red";
+                text.innerHTML = "punto de inicio no existe :("
+            }
+            else {
+                text.style.color = "red";
+                text.innerHTML = 'algo fallo: ' + status
             }
             
         });
 
+        
     }
         
     geocodeAddress(geocoder, resultsMap);
