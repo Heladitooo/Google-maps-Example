@@ -1,25 +1,11 @@
+var marker = 0;
+var trueMarker = false;
 function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)//PINTA EL MAPA
 {
     var text = document.getElementById('information')
 
     var init = document.getElementById('init').value;//.value es el valor
     var end = document.getElementById('end').value;
-    var infoWindow = new google.maps.InfoWindow;
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          var pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-
-          console.log(pos)
-        }, function() {
-          handleLocationError(true, infoWindow, map.getCenter());
-        });
-      } else {
-        // Browser doesn't support Geolocation
-        handleLocationError(false, infoWindow, map.getCenter());
-      }
     
 
     var INIT = {
@@ -34,6 +20,13 @@ function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)/
         lng: 0
     }
 
+   
+    var CONDUCTOR = {
+        lat: 0,
+        lng: 0,
+        show: false
+    }
+    
     function calculateTime()
         {
             var service = new google.maps.DistanceMatrixService;
@@ -48,7 +41,6 @@ function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)/
                 if (status == 'OK') {
                   var origins = response.originAddresses;
                   var destinations = response.destinationAddresses;
-              
                   for (var i = 0; i < origins.length; i++) {
                     var results = response.rows[i].elements;
                     for (var j = 0; j < results.length; j++) {
@@ -59,8 +51,45 @@ function paintRoute(directionsService, directionsRenderer,geocoder, resultsMap)/
                       var to = destinations[j];
                     }
                   }
-                  text.style.color = "white";
-                  text.innerHTML = `Distancia: ${element.distance.text}  Duracion: ${element.duration.text}`;
+                 
+                  CONDUCTOR.lat = random(INIT.lat, END.lat);
+                  CONDUCTOR.lng = random(INIT.lng, END.lng);
+                  
+                function addRemoveMarker(lat,lng)
+                {
+                    console.log(marker)
+                    if(trueMarker == false)
+                    {
+                        marker = new google.maps.Marker({
+                            position: {lat: lat, lng: lng},
+                            map: resultsMap,
+                          title: 'Conductor!',
+                          icon: {
+                            url: "http://rpmexperience.ca/wp-content/uploads/2015/01/unnamed-80x80.png"
+                          }
+                        })
+                        trueMarker=true
+                    }else{
+                        marker.setMap(null);
+                        marker = new google.maps.Marker({
+                            position: {lat: lat, lng: lng},
+                            map: resultsMap,
+                          title: 'Conductor!',
+                          icon: {
+                            url: "http://rpmexperience.ca/wp-content/uploads/2015/01/unnamed-80x80.png"
+                          }
+                        })
+                    }
+                   
+
+                }
+                
+                addRemoveMarker(CONDUCTOR.lat,CONDUCTOR.lng)
+
+                
+                  text.style.color = "black";
+                randomUser()
+                  text.innerHTML = `${element.distance.text}<br/>   ${element.duration.text} <br/>$${addCommas(element.distance.value /1.000 * 1.000)} COP`;
                 }
               })
         }

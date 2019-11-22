@@ -28,27 +28,78 @@
         border: none;
       }
 
-      .panel
+      .panel-controls
       {
+        position: relative;
         display: flex;
         align-items: center;
-        color: white;
         height: 10%;
+        transition: .4s;
+        z-index: 6;
+        background: #f2f2f2;
+
+      }
+
+      .information
+      {
+        transition: .4s;
+
+        position: absolute;
+        z-index: 4;
+        top: -62vh;
+        background: #f2f2f2;
+        width: 100vw;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+
+      .conductor
+      {
+        display: flex;
+        justify-content: center;
+        text-align: end;
+        align-items: center;
+      }
+
+      .conductor img
+      {
+        width: 43%;
+        margin-left: 2%;
+      }
+      .panel:hover .information
+      {
+        top: 64px;
       }
       
     </style>
   </head>
   <body>
     <section class="panel">
-        <input type="text" id="init" placeholder="Inicio(incluye el pais)">
-        <input type="text" id="end" placeholder="Destino!(incluye el pais)">
-        <button id="letsGo">ok</button>
+      <div class="panel-controls">
+          <input type="text" id="init" placeholder="Inicio(incluye el pais)">
+          <input type="text" id="end" placeholder="Destino!(incluye el pais)">
+          <button id="letsGo">ok</button>
+      </div>
+        
+        <div class="information">
         <h1 id="information"></h1>
+        <div class="conductor">
+            <h1 id="conductorName"></h1>
+            <img src="" alt="" id="conductorImage">
+        </div>
+            
+        </div>
     </section>
        
     <div id="map"></div>
+   
     <script src="index.js" ></script>
     <script src="paint.js" ></script>
+    <script src="randomUser.js"></script>
+    <script src="addCommas.js" ></script>
+    <script src="randomNumer.js"></script>
+  
 
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmjvkXB_DMnBUNwxQztLMStyQmA_szbNw&callback=initMap">

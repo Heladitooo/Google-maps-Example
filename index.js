@@ -14,6 +14,7 @@ function initMap() {
     document.getElementById('letsGo').addEventListener('click', () => {//cuando le des click pinta el nuevo mapa
         paintRoute(directionsService, directionsRenderer,geocoder,map)
         console.log('ok?')
+        
     })
   }
   
